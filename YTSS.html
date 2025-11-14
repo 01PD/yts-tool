@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YTS Simple - 작동하는 YouTube 검색 도구</title>
+    <!-- SheetJS 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+```
+    :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --card: #21262d;
+        --accent: #58a6ff;
+        --success: #238636;
+        --warning: #f85149;
+        --text: #f0f6fc;
+        --text-muted: #8b949e;
+        --border: #30363d;
+    }
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.6;
+        padding: 20px;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .header {
+        text-align: center;
+        padding: 30px 0;
+        background: linear-gradient(135deg, #1f6feb 0%, #7c3aed 100%);
+        margin: -20px -20px 30px -20px;
+        border-radius: 12px;
+    }
+
+    .header h1 {
+        color: white;
+        font-size: 2.2em;
+        margin-bottom: 10px;
+    }
+
+    .header .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1em;
+    }
+
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .panel h2 {
+        color: var(--accent);
+        margin-bottom: 20px;
+        font-size: 1.4em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        color: var(--text);
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2);
+    }
+
+    .btn {
+        background: var(--accent);
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 5px;
+        width: 100%;
+    }
+
+    .btn:hover:not(:disabled) {
+        background: #4493f8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(68, 147, 248, 0.3);
+    }
+
+    .btn:disabled {
+        background: #484f58;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .btn-secondary {
+        background: #21262d;
+        border: 2px solid var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+        background: #30363d;
+        border-color: var(--accent);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .status-connected {
+        background: rgba(35, 134, 54, 0.2);
+        color: #3fb950;
+        border: 2px solid rgba(35, 134, 54, 0.5);
+    }
+
+    .status-disconnected {
+        background: rgba(248, 81, 73, 0.2);
+        color: #ff7b72;
+        border: 2px solid rgba(248, 81, 73, 0.5);
+    }
+
+    .alert {
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-size: 16px;
+        border: 2px solid;
+    }
+
+    .alert-success {
+        background: rgba(35, 134, 54, 0.1);
+        border-color: rgba(35, 134, 54, 0.5);
+        color: #3fb950;
+    }
+
+    .alert-error {
+        background: rgba(248, 81, 73, 0.1);
+        border-color: rgba(248, 81, 73, 0.5);
+        color: #ff7b72;
+    }
+
+    .alert-info {
+        background: rgba(88, 166, 255, 0.1);
+        border-color: rgba(88, 166, 255, 0.5);
+        color: var(--accent);
+    }
+
+    .hint {
+        font-size: 14px;
+        color: var(--text-muted);
+        margin-top: 8px;
+        line-height: 1.4;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .hidden { display: none !important; }
+
+    .video-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        margin-bottom: 16px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .video-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .video-content {
+        display: grid;
+        grid-template-columns: 180px 1fr;
+        gap: 16px;
+    }
+
+    .video-thumbnail {
+        width: 180px;
+        height: 101px;
+        object-fit: cover;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .video-info {
+        padding: 16px 16px 16px 0;
+    }
+
+    .video-title {
+        font-size: 1.1em;
+        font-weight: 600;
+        color: var(--accent);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1.3;
+    }
+
+    .video-title:hover {
+        text-decoration: underline;
+    }
+
+    .video-channel {
+        color: var(--text-muted);
+        font-size: 0.9em;
+        margin-bottom: 12px;
+    }
+
+    .video-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .stat-item {
+        background: var(--card);
+        padding: 6px 8px;
+        border-radius: 4px;
+        text-align: center;
+        font-size: 0.8em;
+    }
+
+    .stat-label {
+        color: var(--text-muted);
+        display: block;
+        font-size: 0.75em;
+    }
+
+    .stat-value {
+        color: var(--text);
+        font-weight: 600;
+    }
+
+    .video-description {
+        color: var(--text-muted);
+        font-size: 0.85em;
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+
+    .video-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        flex-wrap: wrap;
+    }
+
+    .btn-small {
+        background: var(--card);
+        color: var(--text);
+        border: 1px solid var(--border);
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 0.75em;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .btn-small:hover {
+        background: var(--surface);
+        border-color: var(--accent);
+        color: var(--accent);
+        transform: translateY(-1px);
+    }
+
+    .btn-small:disabled {
+        background: var(--card);
+        color: var(--text-muted);
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-small.downloading {
+        background: var(--accent);
+        color: white;
+        cursor: wait;
+    }
+
+    .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .spinner {
+        width: 24px;
+        height: 24px;
+        border: 2px solid var(--border);
+        border-top: 2px solid var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    .layout {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 20px;
+    }
+
+    @media (max-width: 768px) {
+        .layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .video-content {
+            grid-template-columns: 1fr;
+        }
+        
+        .video-thumbnail {
+            width: 100%;
+            height: auto;
+        }
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 YTS Simple</h1>
+            <div class="subtitle">테스트 검증된 YouTube 검색 도구</div>
+        </div>
+
+```
+    <div class="layout">
+        <!-- 왼쪽: API 설정 & 검색 -->
+        <div class="left-panel">
+            <!-- API 설정 (테스트 버전과 동일) -->
+            <div class="panel">
+                <h2>🔑 API 연결 상태 <span id="apiStatus" class="status-badge status-disconnected">미연결</span></h2>
+                
+                <div class="form-group">
+                    <label for="apiKey">YouTube Data API v3 Key</label>
+                    <input type="text" id="apiKey" placeholder="AIzaSy로 시작하는 39자리 API 키">
+                    <div class="hint">
+                        📍 <a href="https://console.cloud.google.com/" target="_blank" style="color: var(--accent);">Google Cloud Console</a>에서 발급<br>
+                        ✅ YouTube Data API v3 활성화 필수
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button class="btn btn-secondary" onclick="validateFormat()">📋 형식 검사</button>
+                    <button class="btn btn-secondary" onclick="basicTest()">🔍 기본 테스트</button>
+                    <button class="btn" onclick="saveApiKey()">💾 저장</button>
+                </div>
+            </div>
+
+            <!-- 검색 설정 -->
+            <div class="panel">
+                <h2>🔍 검색 설정</h2>
+                
+                <div class="form-group">
+                    <label for="searchType">검색 유형</label>
+                    <select id="searchType" onchange="toggleSearchType()">
+                        <option value="video">동영상 검색</option>
+                        <option value="channel">채널 검색</option>
+                    </select>
+                </div>
+
+                <div id="videoSearchPanel">
+                    <div class="form-group">
+                        <label for="videoQuery">검색어</label>
+                        <input type="text" id="videoQuery" placeholder="키워드 또는 YouTube URL">
+                        <div class="hint">예: "파이썬 강의" 또는 "https://youtube.com/watch?v=abc123"</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="maxResults">결과 개수</label>
+                        <select id="maxResults">
+                            <option value="10">10개</option>
+                            <option value="25" selected>25개</option>
+                            <option value="50">50개</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="channelSearchPanel" class="hidden">
+                    <div class="form-group">
+                        <label for="channelQuery">채널 검색</label>
+                        <input type="text" id="channelQuery" placeholder="채널명, URL, ID 또는 영상 URL">
+                        <div class="hint">예: "조코딩", "@jocoding", "https://youtube.com/watch?v=abc123"</div>
+                    </div>
+                </div>
+
+                <button class="btn" onclick="executeSearch()" id="searchBtn">🚀 검색 실행</button>
+            </div>
+
+            <!-- Excel 내보내기 -->
+            <div class="panel">
+                <h2>📊 데이터 내보내기</h2>
+                <button class="btn" onclick="exportToExcel()" id="exportBtn">📥 Excel 다운로드</button>
+                <div class="hint">검색 결과를 Excel 파일로 다운로드</div>
+            </div>
+        </div>
+
+        <!-- 오른쪽: 결과 표시 -->
+        <div class="right-panel">
+            <div id="resultsContainer">
+                <div class="alert alert-info">
+                    💡 API 키를 설정하고 검색을 시작하세요!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 전역 변수 (테스트 버전과 동일)
+    let currentApiKey = '';
+    let searchResults = [];
+    let currentSearchType = 'video';
+
+    // 테스트 버전과 완전 동일한 초기화
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🔧 YTS Simple 초기화 시작...');
+        
+        // localStorage에서 API 키 로드
+        const savedKey = localStorage.getItem('youtube_api_key');
+        if (savedKey && savedKey.length > 30) {
+            console.log('💾 저장된 API 키 발견:', savedKey.substring(0, 10) + '...');
+            document.getElementById('apiKey').value = savedKey;
+            currentApiKey = savedKey;
+            
+            // 조용한 검증
+            setTimeout(() => {
+                console.log('🔄 저장된 키로 자동 형식 검사 실행');
+                validateFormat();
+            }, 1000);
+        }
+        
+        console.log('✅ YTS Simple 초기화 완료');
+    });
+
+    // 테스트 버전과 완전 동일한 함수들
+    function updateApiStatus(connected) {
+        console.log(`🔄 API 상태 업데이트: ${connected ? '연결됨' : '미연결'}`);
+        const statusEl = document.getElementById('apiStatus');
+        if (statusEl) {
+            statusEl.textContent = connected ? '연결됨' : '미연결';
+            statusEl.className = connected ? 'status-badge status-connected' : 'status-badge status-disconnected';
+        }
+    }
+
+    function showResult(type, title, message) {
+        const resultSection = document.getElementById('resultsContainer');
+        resultSection.innerHTML = `
+            <div class="panel">
+                <div class="alert alert-${type}">
+                    <strong>${title}</strong><br>
+                    ${message}
+                </div>
+            </div>
+        `;
+    }
+
+    // 1단계: 형식 검사 (테스트 버전과 동일)
+    function validateFormat() {
+        const key = document.getElementById('apiKey').value.trim();
+        console.log('📋 API 키 형식 검사 시작');
+        
+        if (!key) {
+            console.log('❌ API 키가 입력되지 않음');
+            showResult('error', '형식 검사 실패', 'API 키를 입력해주세요.');
+            return false;
+        }
+
+        console.log(`🔍 입력된 키 분석: 길이 ${key.length}자`);
+        console.log(`🔍 시작 문자: ${key.substring(0, 6)}...`);
+
+        // 형식 검증
+        const errors = [];
+        
+        if (!key.startsWith('AIza')) {
+            errors.push('API 키는 "AIza"로 시작해야 합니다');
+            console.log('❌ 시작 문자 오류: AIza로 시작하지 않음');
+        }
+        
+        if (key.length !== 39) {
+            errors.push(`API 키는 정확히 39자여야 합니다 (현재: ${key.length}자)`);
+            console.log(`❌ 길이 오류: ${key.length}자 (39자 필요)`);
+        }
+        
+        if (!/^[A-Za-z0-9_-]+$/.test(key)) {
+            errors.push('API 키에 허용되지 않은 문자가 포함되어 있습니다');
+            console.log('❌ 문자 오류: 허용되지 않은 특수문자 포함');
+        }
+
+        if (errors.length > 0) {
+            const errorMsg = errors.join('<br>');
+            showResult('error', '형식 검사 실패', errorMsg);
+            console.log(`❌ 형식 검사 실패: ${errors.length}개 오류 발견`);
+            return false;
+        }
+
+        console.log('✅ 형식 검사 통과');
+        showResult('success', '형식 검사 통과', 'API 키 형식이 올바릅니다. 이제 기본 테스트를 실행하세요.');
+        currentApiKey = key;
+        return true;
+    }
+
+    // 2단계: 기본 테스트 (테스트 버전과 완전 동일)
+    async function basicTest() {
+        if (!validateFormat()) {
+            return;
+        }
+
+        console.log('🔍 기본 API 연결 테스트 시작');
+        showResult('info', '기본 테스트 진행 중', '🔍 API 키를 테스트하는 중...');
+        
+        try {
+            // 가장 간단한 API 호출
+            const testUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=test&maxResults=1&type=video&key=${currentApiKey}`;
+            console.log('🌐 API 요청 전송 중...');
+            console.log(`📡 요청 URL: ${testUrl.substring(0, 100)}...`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10초 타임아웃
+            
+            const response = await fetch(testUrl, {
+                method: 'GET',
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            
+            console.log(`📡 응답 수신: HTTP ${response.status} ${response.statusText}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                console.log('✅ 기본 테스트 성공:', data.items?.length || 0, '개 결과 수신');
+                
+                updateApiStatus(true);
+                
+                showResult('success', '기본 테스트 성공!', 
+                    `API 키가 정상적으로 작동합니다.<br>` +
+                    `응답 상태: ${response.status}<br>` +
+                    `결과 수: ${data.items?.length || 0}개<br>` +
+                    `이제 검색을 실행할 수 있습니다!`
+                );
+
+                // 저장
+                localStorage.setItem('youtube_api_key', currentApiKey);
+                console.log('💾 유효한 API 키를 로컬 스토리지에 저장');
+                
+            } else {
+                const errorData = await response.json().catch(() => null);
+                const errorMsg = errorData?.error?.message || response.statusText;
+                
+                console.log(`❌ API 오류 응답: ${response.status} - ${errorMsg}`);
+                
+                let helpText = '';
+                if (response.status === 403) {
+                    helpText = 'YouTube Data API v3가 활성화되지 않았거나 할당량을 초과했습니다.';
+                } else if (response.status === 400) {
+                    helpText = 'API 키가 유효하지 않습니다.';
+                } else if (response.status === 429) {
+                    helpText = 'API 요청 한도를 초과했습니다.';
+                }
+                
+                updateApiStatus(false);
+                showResult('error', '기본 테스트 실패', 
+                    `HTTP ${response.status}: ${errorMsg}<br><br>` +
+                    `해결 방법: ${helpText}`
+                );
+            }
+            
+        } catch (error) {
+            console.log(`💥 네트워크 오류: ${error.message}`);
+            updateApiStatus(false);
+            
+            let helpText = '';
+            if (error.name === 'AbortError') {
+                helpText = '요청 시간 초과 (10초). 인터넷 연결을 확인하세요.';
+            } else {
+                helpText = '네트워크 연결 문제. 인터넷 연결을 확인하세요.';
+            }
+            
+            showResult('error', '네트워크 오류', 
+                `오류: ${error.message}<br><br>` +
+                `해결 방법: ${helpText}`
+            );
+        }
+    }
+
+    async function saveApiKey() {
+        const isValid = await basicTest(); // 기본 테스트를 먼저 실행
+    }
+
+    function toggleSearchType() {
+        const searchType = document.getElementById('searchType').value;
+        const videoPanel = document.getElementById('videoSearchPanel');
+        const channelPanel = document.getElementById('channelSearchPanel');
+        
+        currentSearchType = searchType;
+        
+        if (searchType === 'video') {
+            videoPanel.classList.remove('hidden');
+            channelPanel.classList.add('hidden');
+        } else {
+            videoPanel.classList.add('hidden');
+            channelPanel.classList.remove('hidden');
+        }
+        
+        // 결과 초기화
+        document.getElementById('resultsContainer').innerHTML = '<div class="alert alert-info">💡 검색을 시작하세요!</div>';
+        searchResults = [];
+    }
+
+    // 검색 실행
+    async function executeSearch() {
+        if (!currentApiKey) {
+            showResult('error', '검색 실패', '❌ 먼저 API 키를 설정하고 테스트를 완료해주세요.');
+            return;
+        }
+
+        const searchBtn = document.getElementById('searchBtn');
+        const originalText = searchBtn.textContent;
+        
+        searchBtn.disabled = true;
+        searchBtn.textContent = '검색 중...';
+        
+        showLoading();
+
+        try {
+            if (currentSearchType === 'video') {
+                searchResults = await searchVideos();
+            } else {
+                searchResults = await searchChannels();
+            }
+            
+            console.log(`📊 검색 결과: ${searchResults.length}개`);
+            displayResults();
+            
+        } catch (error) {
+            console.error('💥 검색 오류:', error);
+            showResult('error', '검색 실패', `❌ ${error.message}`);
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.textContent = originalText;
+        }
+    }
+
+    function showLoading() {
+        document.getElementById('resultsContainer').innerHTML = `
+            <div class="loading">
+                <div class="spinner"></div>
+                <div>검색하는 중입니다...</div>
+            </div>
+        `;
+    }
+
+    // 동영상 검색 (단순화)
+    async function searchVideos() {
+        const query = document.getElementById('videoQuery').value.trim();
+        if (!query) {
+            throw new Error('검색어를 입력해주세요.');
+        }
+
+        const maxResults = document.getElementById('maxResults').value;
+
+        // 간단한 동영상 검색
+        let searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&maxResults=${maxResults}&key=${currentApiKey}`;
+
+        const searchResponse = await fetch(searchUrl);
+        if (!searchResponse.ok) {
+            const error = await searchResponse.json();
+            throw new Error(error.error?.message || 'Search failed');
+        }
+        
+        const searchData = await searchResponse.json();
+        if (!searchData.items?.length) {
+            return [];
+        }
+
+        // 동영상 상세 정보
+        const videoIds = searchData.items.map(item => item.id.videoId).join(',');
+        const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoIds}&key=${currentApiKey}`;
+        
+        const videosResponse = await fetch(videosUrl);
+        if (!videosResponse.ok) throw new Error('Failed to fetch video details');
+        
+        const videosData = await videosResponse.json();
+
+        return videosData.items.map(video => ({
+            type: 'video',
+            id: video.id,
+            title: video.snippet.title,
+            channelTitle: video.snippet.channelTitle,
+            publishedAt: video.snippet.publishedAt,
+            description: video.snippet.description,
+            thumbnails: video.snippet.thumbnails,
+            viewCount: parseInt(video.statistics.viewCount || 0),
+            likeCount: parseInt(video.statistics.likeCount || 0),
+            commentCount: parseInt(video.statistics.commentCount || 0)
+        }));
+    }
+
+    // 채널 검색 (단순화)
+    async function searchChannels() {
+        const query = document.getElementById('channelQuery').value.trim();
+        if (!query) {
+            throw new Error('채널 검색어를 입력해주세요.');
+        }
+
+        // 간단한 채널 검색
+        const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(query)}&maxResults=10&key=${currentApiKey}`;
+        const searchResponse = await fetch(searchUrl);
+        if (!searchResponse.ok) throw new Error('검색에 실패했습니다.');
+        
+        const searchData = await searchResponse.json();
+        if (!searchData.items?.length) {
+            return [];
+        }
+
+        // 채널 상세 정보
+        const channelIds = searchData.items.map(item => item.id.channelId).join(',');
+        const channelUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${channelIds}&key=${currentApiKey}`;
+        const channelsResponse = await fetch(channelUrl);
+        if (!channelsResponse.ok) throw new Error('채널 상세 정보를 가져올 수 없습니다.');
+        
+        const channelsData = await channelsResponse.json();
+
+        return channelsData.items.map(channel => ({
+            type: 'channel',
+            id: channel.id,
+            title: channel.snippet.title,
+            description: channel.snippet.description,
+            thumbnails: channel.snippet.thumbnails,
+            publishedAt: channel.snippet.publishedAt,
+            subscriberCount: parseInt(channel.statistics.subscriberCount || 0),
+            videoCount: parseInt(channel.statistics.videoCount || 0),
+            viewCount: parseInt(channel.statistics.viewCount || 0)
+        }));
+    }
+
+    // 결과 표시
+    function displayResults() {
+        const container = document.getElementById('resultsContainer');
+        
+        if (!searchResults?.length) {
+            showResult('info', '검색 완료', '😔 검색 결과가 없습니다.');
+            return;
+        }
+        
+        let html = `
+            <div class="panel">
+                <h2>📊 검색 결과 (${searchResults.length}개)</h2>
+            </div>
+        `;
+        
+        searchResults.forEach(item => {
+            if (item.type === 'video') {
+                html += createVideoCard(item);
+            } else {
+                html += createChannelCard(item);
+            }
+        });
+        
+        container.innerHTML = html;
+    }
+
+    function createVideoCard(video) {
+        const thumbnail = video.thumbnails.medium?.url || video.thumbnails.default?.url;
+        const description = video.description.length > 150 ? 
+            video.description.substring(0, 150) + '...' : video.description;
+        
+        return `
+            <div class="video-card">
+                <div class="video-content">
+                    <img src="${thumbnail}" 
+                         alt="${video.title}" 
+                         class="video-thumbnail"
+                         onclick="window.open('https://www.youtube.com/watch?v=${video.id}', '_blank')">
+                    
+                    <div class="video-info">
+                        <a href="https://www.youtube.com/watch?v=${video.id}" 
+                           target="_blank" 
+                           class="video-title">${video.title}</a>
+                        
+                        <div class="video-channel">📺 ${video.channelTitle}</div>
+                        
+                        <div class="video-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">조회수</span>
+                                <span class="stat-value">${formatNumber(video.viewCount)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">좋아요</span>
+                                <span class="stat-value">${formatNumber(video.likeCount)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">댓글</span>
+                                <span class="stat-value">${formatNumber(video.commentCount)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">게시일</span>
+                                <span class="stat-value">${formatDate(video.publishedAt)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="video-description">${description}</div>
+                        
+                        <div class="video-actions">
+                            <button class="btn-small" onclick="downloadThumbnail('${video.id}', '${video.title.replace(/'/g, "\\'")}')">
+                                🖼️ 썸네일
+                            </button>
+                            <button class="btn-small" onclick="downloadScript('${video.id}', '${video.title.replace(/'/g, "\\'")}')">
+                                📝 스크립트
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function createChannelCard(channel) {
+        const avatar = channel.thumbnails.medium?.url || channel.thumbnails.default?.url;
+        const description = channel.description.length > 200 ? 
+            channel.description.substring(0, 200) + '...' : channel.description;
+        
+        return `
+            <div class="video-card">
+                <div class="video-content">
+                    <img src="${avatar}" 
+                         alt="${channel.title}" 
+                         class="video-thumbnail"
+                         onclick="window.open('https://www.youtube.com/channel/${channel.id}', '_blank')">
+                    
+                    <div class="video-info">
+                        <a href="https://www.youtube.com/channel/${channel.id}" 
+                           target="_blank" 
+                           class="video-title">${channel.title}</a>
+                        
+                        <div class="video-channel">🌐 채널</div>
+                        
+                        <div class="video-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">구독자</span>
+                                <span class="stat-value">${formatNumber(channel.subscriberCount)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">동영상 수</span>
+                                <span class="stat-value">${formatNumber(channel.videoCount)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">총 조회수</span>
+                                <span class="stat-value">${formatNumber(channel.viewCount)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">개설일</span>
+                                <span class="stat-value">${formatDate(channel.publishedAt)}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="video-description">${description}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // 유틸리티 함수들
+    function formatNumber(num) {
+        if (!num) return '0';
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toLocaleString();
+    }
+
+    function formatDate(dateString) {
+        return new Date(dateString).toLocaleDateString('ko-KR');
+    }
+
+    // 다운로드 기능들
+    async function downloadThumbnail(videoId, videoTitle) {
+        try {
+            const btn = event.target;
+            btn.classList.add('downloading');
+            btn.disabled = true;
+            btn.textContent = '📥 다운로드 중...';
+
+            const thumbnailUrls = [
+                `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+                `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+                `https://img.youtube.com/vi/${videoId}/default.jpg`
+            ];
+
+            let imageBlob = null;
+            let resolution = '';
+            
+            for (let i = 0; i < thumbnailUrls.length; i++) {
+                try {
+                    const response = await fetch(thumbnailUrls[i]);
+                    if (response.ok) {
+                        imageBlob = await response.blob();
+                        resolution = ['최고화질', '고화질', '기본화질'][i];
+                        break;
+                    }
+                } catch (error) {
+                    continue;
+                }
+            }
+
+            if (!imageBlob) {
+                throw new Error('썸네일을 찾을 수 없습니다.');
+            }
+
+            const url = window.URL.createObjectURL(imageBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            const safeTitle = videoTitle.replace(/[<>:"/\\|?*]/g, '_').substring(0, 100);
+            link.download = `${safeTitle}_썸네일_${resolution}.jpg`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            showResult('success', '다운로드 완료', `✅ ${safeTitle} 썸네일 다운로드 완료! (${resolution})`);
+
+        } catch (error) {
+            showResult('error', '다운로드 실패', `❌ 썸네일 다운로드 실패: ${error.message}`);
+        } finally {
+            const btn = event.target;
+            btn.classList.remove('downloading');
+            btn.disabled = false;
+            btn.textContent = '🖼️ 썸네일';
+        }
+    }
+
+    async function downloadScript(videoId, videoTitle) {
+        try {
+            const btn = event.target;
+            btn.classList.add('downloading');
+            btn.disabled = true;
+            btn.textContent = '📥 다운로드 중...';
+
+            const scriptContent = `YouTube 영상 스크립트 안내
+```
+
+=================================
+
+제목: ${videoTitle}
+영상 URL: https://www.youtube.com/watch?v=${videoId}
+
+=================================
+
+📝 자막/스크립트 가져오는 방법:
+
+1. YouTube에서 영상 열기
+   위 영상 URL을 클릭하여 YouTube에서 영상을 열어주세요.
+1. 자막 표시하기
+   • 영상 하단의 “설정” (⚙️) 버튼 클릭
+   • “자막” 선택 후 언어 선택
+   • 또는 “…” → “트랜스크립트 표시” 선택
+1. 자막 복사하기
+   • 트랜스크립트 패널에서 모든 텍스트 선택 (Ctrl+A)
+   • 복사하기 (Ctrl+C)
+
+=================================
+
+생성일: ${new Date().toLocaleString(‘ko-KR’)}
+생성도구: YTS Simple - YouTube Search Tool
+`;
+
+```
+            const blob = new Blob([scriptContent], { type: 'text/plain;charset=utf-8' });
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            
+            const safeTitle = videoTitle.replace(/[<>:"/\\|?*]/g, '_').substring(0, 100);
+            link.download = `${safeTitle}_스크립트안내.txt`;
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
+            showResult('success', '다운로드 완료', `✅ ${safeTitle} 스크립트 안내 파일 다운로드 완료!`);
+
+        } catch (error) {
+            showResult('error', '다운로드 실패', `❌ 스크립트 다운로드 실패: ${error.message}`);
+        } finally {
+            const btn = event.target;
+            btn.classList.remove('downloading');
+            btn.disabled = false;
+            btn.textContent = '📝 스크립트';
+        }
+    }
+
+    // Excel 내보내기
+    function exportToExcel() {
+        if (!searchResults?.length) {
+            showResult('error', 'Excel 내보내기 실패', '❌ 먼저 검색을 실행해주세요.');
+            return;
+        }
+
+        const exportBtn = document.getElementById('exportBtn');
+        const originalText = exportBtn.textContent;
+        
+        exportBtn.disabled = true;
+        exportBtn.textContent = '📥 생성 중...';
+
+        try {
+            const worksheet = XLSX.utils.json_to_sheet(
+                searchResults.map(item => {
+                    if (item.type === 'video') {
+                        return {
+                            '게시일': formatDate(item.publishedAt),
+                            '조회수': item.viewCount,
+                            '영상 URL': `https://www.youtube.com/watch?v=${item.id}`,
+                            '제목': item.title,
+                            '채널': item.channelTitle,
+                            '좋아요': item.likeCount,
+                            '댓글': item.commentCount
+                        };
+                    } else {
+                        return {
+                            '개설일': formatDate(item.publishedAt),
+                            '구독자': item.subscriberCount,
+                            '채널 URL': `https://www.youtube.com/channel/${item.id}`,
+                            '채널명': item.title,
+                            '동영상 수': item.videoCount,
+                            '총 조회수': item.viewCount
+                        };
+                    }
+                })
+            );
+
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, currentSearchType === 'video' ? '동영상 검색 결과' : '채널 검색 결과');
+            
+            const fileName = `YTS_Simple_${currentSearchType === 'video' ? '동영상' : '채널'}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+            
+            showResult('success', 'Excel 내보내기 완료', `✅ Excel 파일이 다운로드되었습니다: ${fileName}`);
+
+        } catch (error) {
+            showResult('error', 'Excel 내보내기 실패', `❌ Excel 내보내기 실패: ${error.message}`);
+        } finally {
+            exportBtn.disabled = false;
+            exportBtn.textContent = originalText;
+        }
+    }
+</script>
+```
+
+</body>
+</html>
