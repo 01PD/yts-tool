@@ -299,28 +299,33 @@
       overflow: auto;
       padding-right: 2px;
       flex: 1;
-      max-height: calc(100vh - 180px);
+      /* max-height 제거해서 카드 높이 여유 있게 */
     }
 
     .video-card {
       display: grid;
-      grid-template-columns: 180px minmax(0, 1fr);
-      gap: 10px;
-      background: rgba(15,23,42,0.88);
+      /* 썸네일 크게 (데스크탑 기준) */
+      grid-template-columns: 260px minmax(0, 1fr);
+      gap: 12px;
+      background: rgba(15,23,42,0.9);
       border-radius: 14px;
       border: 1px solid rgba(55,65,81,0.7);
       overflow: hidden;
+      min-height: 170px;
     }
 
-    @media (max-width: 700px) {
+    /* 화면이 좁을 땐 위아래로 배치해서 썸네일/정보 둘 다 넓게 */
+    @media (max-width: 900px) {
       .video-card {
-        grid-template-columns: 130px minmax(0, 1fr);
+        grid-template-columns: 1fr;
       }
     }
 
     .video-thumb {
       position: relative;
       overflow: hidden;
+      /* 썸네일 비율 유지 (16:9) */
+      aspect-ratio: 16 / 9;
     }
 
     .video-thumb img {
