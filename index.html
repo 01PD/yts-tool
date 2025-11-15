@@ -31,9 +31,9 @@
     }
 
     .app {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 16px 16px 40px;
+      padding: 16px 16px 32px;
     }
 
     header {
@@ -41,7 +41,7 @@
       flex-wrap: wrap;
       align-items: baseline;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 10px;
     }
 
     header h1 {
@@ -68,20 +68,66 @@
       color: var(--text-soft);
     }
 
-    .card {
+    /* ===== 3단 레이아웃: 좌 1/6, 중간 4/6, 우 1/6 ===== */
+    .main-layout {
+      display: grid;
+      grid-template-columns: minmax(180px, 1fr) minmax(0, 4fr) minmax(220px, 1fr);
+      gap: 12px;
+      min-height: calc(100vh - 110px);
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-inner {
       background: radial-gradient(circle at top left, #020617 0, #020617 20%, #020617 55%, #000 100%);
       border-radius: var(--radius-lg);
       border: 1px solid rgba(148,163,184,0.15);
       box-shadow: var(--shadow-soft);
-      padding: 14px 14px 16px;
-      margin-bottom: 16px;
+      padding: 12px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 260px;
     }
 
+    .panel-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .panel-title-row h2 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .panel-title-row span {
+      font-size: 0.76rem;
+      color: var(--text-soft);
+    }
+
+    /* 반응형: 화면이 좁아지면 위에서 아래로 쌓이기 */
+    @media (max-width: 1000px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+      .panel-inner {
+        min-height: auto;
+      }
+    }
+
+    /* ===== 폼 / 컨트롤 ===== */
     .controls-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 10px;
-      align-items: flex-end;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 6px;
     }
 
     .field {
@@ -142,11 +188,11 @@
     }
 
     .btn-primary {
-      padding: 9px 14px;
+      padding: 8px 12px;
       border-radius: 999px;
       border: none;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
       font-weight: 600;
       background: linear-gradient(135deg, #38bdf8, #22c55e);
       color: #0b1120;
@@ -158,7 +204,7 @@
     }
 
     .btn-secondary {
-      padding: 7px 11px;
+      padding: 6px 9px;
       border-radius: 999px;
       border: 1px solid rgba(148,163,184,0.5);
       cursor: pointer;
@@ -176,33 +222,20 @@
 
     .controls-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       justify-content: flex-end;
       align-items: center;
-      margin-top: 6px;
+      margin-top: 4px;
       flex-wrap: wrap;
     }
 
     .status-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.78rem;
-      color: var(--text-soft);
       margin-top: 6px;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .status-bar span.loading-dot::after {
-      content: " •••";
-      animation: dots 1s infinite steps(3, end);
-    }
-
-    @keyframes dots {
-      0%, 20% { content: " •  "; }
-      40% { content: " •• "; }
-      60%, 100% { content: " •••"; }
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.76rem;
+      color: var(--text-soft);
     }
 
     .status-message {
@@ -215,12 +248,24 @@
       color: var(--danger);
     }
 
+    .status-message.loading-dot::after {
+      content: " •";
+      animation: dots 1s infinite steps(3, end);
+    }
+
+    @keyframes dots {
+      0%, 20% { content: " •"; }
+      40% { content: " ••"; }
+      60%, 100% { content: " •••"; }
+    }
+
     .pill {
       padding: 2px 8px;
       border-radius: 999px;
       border: 1px solid rgba(148,163,184,0.35);
       font-size: 0.74rem;
       color: var(--text-soft);
+      align-self: flex-end;
     }
 
     .pill strong {
@@ -228,38 +273,46 @@
       font-weight: 600;
     }
 
-    .layout {
-      display: grid;
-      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.5fr);
-      gap: 14px;
+    /* ===== 결과 리스트 (가운데 4/6 영역) ===== */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+      margin-bottom: 8px;
     }
 
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
+    .results-header h2 {
+      margin: 0;
+      font-size: 0.95rem;
+    }
+
+    .results-header span {
+      font-size: 0.78rem;
+      color: var(--text-soft);
     }
 
     .results-list {
       display: flex;
       flex-direction: column;
       gap: 10px;
-      max-height: 62vh;
       overflow: auto;
       padding-right: 2px;
+      flex: 1;
+      max-height: calc(100vh - 180px);
     }
 
     .video-card {
       display: grid;
-      grid-template-columns: 160px minmax(0, 1fr);
+      grid-template-columns: 180px minmax(0, 1fr);
       gap: 10px;
-      background: rgba(15,23,42,0.85);
+      background: rgba(15,23,42,0.88);
       border-radius: 14px;
       border: 1px solid rgba(55,65,81,0.7);
       overflow: hidden;
     }
 
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
       .video-card {
         grid-template-columns: 130px minmax(0, 1fr);
       }
@@ -337,44 +390,17 @@
       text-decoration: underline;
     }
 
-    .analysis-section {
-      background: rgba(15,23,42,0.9);
-      border-radius: 14px;
-      border: 1px solid rgba(55,65,81,0.7);
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      max-height: 62vh;
-      overflow: auto;
-    }
-
-    .analysis-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      gap: 8px;
-    }
-
-    .analysis-header h2 {
-      font-size: 0.95rem;
-      margin: 0;
-    }
-
-    .analysis-header span {
-      font-size: 0.76rem;
-      color: var(--text-soft);
-    }
-
+    /* ===== 좌측 요약 분석 (1/6) ===== */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 8px;
+      grid-template-columns: 1fr;
+      gap: 6px;
       font-size: 0.8rem;
+      margin-bottom: 6px;
     }
 
     .stat-item {
-      padding: 7px 8px;
+      padding: 6px 7px;
       border-radius: 10px;
       background: rgba(15,23,42,0.95);
       border: 1px solid rgba(31,41,55,0.9);
@@ -383,7 +409,7 @@
     .stat-label {
       font-size: 0.72rem;
       color: var(--text-soft);
-      margin-bottom: 2px;
+      margin-bottom: 1px;
     }
 
     .stat-value {
@@ -405,6 +431,8 @@
       flex-wrap: wrap;
       gap: 4px;
       font-size: 0.76rem;
+      max-height: 90px;
+      overflow: auto;
     }
 
     .keyword-chip {
@@ -422,7 +450,7 @@
     .empty-state {
       font-size: 0.78rem;
       color: var(--text-soft);
-      padding: 10px 0;
+      padding: 8px 0;
     }
   </style>
 </head>
@@ -433,136 +461,15 @@
         YouTube 채널 분석 툴
         <span class="badge">v1 · HTML Only</span>
       </h1>
-      <p>채널·영상 메타데이터를 빠르게 모아서, 브라우저에서 바로 분석합니다.</p>
+      <p>채널·영상 메타데이터를 브라우저에서 바로 분석합니다.</p>
     </header>
 
-    <!-- 컨트롤 카드 -->
-    <section class="card">
-      <div class="controls-grid">
-        <div class="field">
-          <label for="apiKey">YouTube API 키 <span style="color:#f97373">*</span></label>
-          <input
-            id="apiKey"
-            class="input"
-            type="password"
-            placeholder="브라우저 키를 여기 입력 (코드에 직접 넣지 마세요)"
-          />
-          <div class="help-text">
-            Google Cloud에서 얻은 <strong>API 키</strong>를 입력하세요. GitHub에 올릴 때는 키를 코드에 하드코딩하지 말고, 여기 입력해서 쓰는 방식이 안전합니다.
-          </div>
-        </div>
-
-        <div class="field">
-          <label>검색 모드</label>
-          <div class="mode-toggle">
-            <button type="button" class="mode-button active" data-mode="channel">채널 ID/핸들 기준</button>
-            <button type="button" class="mode-button" data-mode="keyword">키워드 검색</button>
-          </div>
-          <div class="help-text">
-            채널 ID, 또는 <code>@handle</code>로 특정 채널 영상만 분석하거나, 키워드로 전체 검색 가능합니다.
-          </div>
-        </div>
-
-        <div class="field" id="channelField">
-          <label for="channelId">채널 ID 또는 @핸들</label>
-          <input
-            id="channelId"
-            class="input"
-            type="text"
-            placeholder="예: UCXXXXXXXX 또는 @mychannel"
-          />
-          <div class="help-text">
-            채널 URL에서 ID를 복사하거나, YouTube 핸들(@...)을 그대로 입력해도 됩니다.
-          </div>
-        </div>
-
-        <div class="field" id="keywordField" style="display:none;">
-          <label for="keyword">키워드</label>
-          <input
-            id="keyword"
-            class="input"
-            type="text"
-            placeholder="예: 이혼 후 10년, 장례식 복수..."
-          />
-          <div class="help-text">
-            한국어 키워드로 검색하면 해당 키워드가 들어간 영상들을 분석합니다.
-          </div>
-        </div>
-
-        <div class="field">
-          <label for="order">정렬 기준</label>
-          <select id="order">
-            <option value="date">최신순</option>
-            <option value="viewCount">조회수 순</option>
-            <option value="relevance">관련도 순 (키워드 사용 시)</option>
-          </select>
-          <div class="help-text">YouTube Data API의 정렬 기준을 그대로 사용합니다.</div>
-        </div>
-
-        <div class="field">
-          <label for="maxResults">최대 영상 개수 (1~150)</label>
-          <input
-            id="maxResults"
-            class="input"
-            type="number"
-            min="1"
-            max="150"
-            value="50"
-          />
-          <div class="help-text">페이지네이션 돌리면서 최대 이 숫자까지 가져옵니다.</div>
-        </div>
-
-        <div class="field">
-          <label for="daysRange">최근 N일 이내 업로드만</label>
-          <input
-            id="daysRange"
-            class="input"
-            type="number"
-            min="0"
-            value="0"
-          />
-          <div class="help-text">0이면 기간 제한 없음, 30이면 최근 한 달 영상만 분석.</div>
-        </div>
-      </div>
-
-      <div class="controls-actions">
-        <button type="button" class="btn-secondary" id="exportCsvBtn" disabled>CSV 다운로드</button>
-        <button type="button" class="btn-primary" id="fetchBtn">
-          영상 불러오기 & 분석
-        </button>
-      </div>
-
-      <div class="status-bar">
-        <div class="status-message" id="statusMessage">
-          준비 완료. API 키와 채널/키워드를 입력하고 실행하세요.
-        </div>
-        <div class="pill" id="statusSummary">
-          <span>분석된 영상: <strong>0</strong>개</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- 결과 + 분석 레이아웃 -->
-    <section class="layout">
-      <!-- 영상 리스트 -->
-      <div>
-        <div class="analysis-section">
-          <div class="analysis-header">
-            <h2>영상 목록</h2>
-            <span id="resultsInfo">아직 불러온 영상이 없습니다.</span>
-          </div>
-          <div id="resultsList" class="results-list">
-            <div class="empty-state">
-              이 영역에 분석 대상 영상 카드가 표시됩니다.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 분석 섹션 -->
-      <aside>
-        <div class="analysis-section">
-          <div class="analysis-header">
+    <!-- ===== 3단 메인 레이아웃 ===== -->
+    <section class="main-layout">
+      <!-- 좌측 1/6 : 요약 분석 -->
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="panel-title-row">
             <h2>요약 분석</h2>
             <span>기본 통계 & 제목 키워드</span>
           </div>
@@ -595,17 +502,154 @@
           </div>
 
           <div class="analysis-block">
-            <h3>제목 키워드 TOP 15 (단순 빈도)</h3>
+            <h3>제목 키워드 TOP 15</h3>
             <div id="keywordList" class="keyword-list">
-              <span class="empty-state">제목 데이터를 불러오면 여기에서 많이 쓰인 단어들을 보여줍니다.</span>
+              <span class="empty-state">
+                제목 데이터를 불러오면 여기에서 많이 쓰인 단어들을 보여줍니다.
+              </span>
             </div>
           </div>
 
           <div class="analysis-block">
             <h3>설명</h3>
             <div class="help-text">
-              이 버전은 <strong>메타데이터 기반 통계 분석</strong>에 집중한 v1입니다.<br />
-              다음 단계에서 원하면 <strong>스크립트/자막 텍스트 + AI 분석</strong>을 붙일 수 있도록 구조를 확장할 수 있습니다.
+              이 영역은 v1 기준 <strong>메타데이터 통계</strong>에 집중합니다.<br />
+              다음 버전에서 스크립트/자막 + AI 분석을 추가할 수 있습니다.
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 가운데 4/6 : 결과 리스트 -->
+      <main class="panel">
+        <div class="panel-inner">
+          <div class="results-header">
+            <h2>영상 목록</h2>
+            <span id="resultsInfo">아직 불러온 영상이 없습니다.</span>
+          </div>
+          <div id="resultsList" class="results-list">
+            <div class="empty-state">
+              이 영역에 분석 대상 영상 카드가 표시됩니다.
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- 우측 1/6 : 검색/필터 영역 -->
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="panel-title-row">
+            <h2>검색 & 필터</h2>
+            <span style="font-size:0.74rem;">우측 패널에서 조건 설정</span>
+          </div>
+
+          <div class="controls-grid">
+            <div class="field">
+              <label for="apiKey">YouTube API 키 <span style="color:#f97373">*</span></label>
+              <input
+                id="apiKey"
+                class="input"
+                type="password"
+                placeholder="브라우저 키를 여기 입력 (코드에 직접 넣지 마세요)"
+              />
+              <div class="help-text">
+                Google Cloud에서 얻은 <strong>API 키</strong>를 입력하세요.
+                키는 코드에 적지 말고, 항상 이 입력창에 붙여넣는 방식으로 사용하세요.
+              </div>
+            </div>
+
+            <div class="field">
+              <label>검색 모드</label>
+              <div class="mode-toggle">
+                <button type="button" class="mode-button active" data-mode="channel">
+                  채널 기준
+                </button>
+                <button type="button" class="mode-button" data-mode="keyword">
+                  키워드 기준
+                </button>
+              </div>
+              <div class="help-text">
+                채널 ID 또는 <code>@handle</code> 기준 / 또는 키워드 검색 중 선택.
+              </div>
+            </div>
+
+            <div class="field" id="channelField">
+              <label for="channelId">채널 ID 또는 @핸들</label>
+              <input
+                id="channelId"
+                class="input"
+                type="text"
+                placeholder="예: UCXXXXXXXX 또는 @mychannel"
+              />
+              <div class="help-text">
+                채널 URL에서 ID를 복사하거나, @핸들을 그대로 입력해도 됩니다.
+              </div>
+            </div>
+
+            <div class="field" id="keywordField" style="display:none;">
+              <label for="keyword">키워드</label>
+              <input
+                id="keyword"
+                class="input"
+                type="text"
+                placeholder="예: 이혼 후 10년, 장례식 복수..."
+              />
+              <div class="help-text">
+                한국어 키워드로 검색하면 해당 키워드가 들어간 영상들을 분석합니다.
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="order">정렬 기준</label>
+              <select id="order">
+                <option value="date">최신순</option>
+                <option value="viewCount">조회수 순</option>
+                <option value="relevance">관련도 순 (키워드 사용 시)</option>
+              </select>
+              <div class="help-text">YouTube Data API 정렬 기준을 그대로 사용합니다.</div>
+            </div>
+
+            <div class="field">
+              <label for="maxResults">최대 영상 개수 (1~150)</label>
+              <input
+                id="maxResults"
+                class="input"
+                type="number"
+                min="1"
+                max="150"
+                value="50"
+              />
+              <div class="help-text">페이지네이션을 돌리며 최대 이 숫자까지 가져옵니다.</div>
+            </div>
+
+            <div class="field">
+              <label for="daysRange">최근 N일 이내 업로드만</label>
+              <input
+                id="daysRange"
+                class="input"
+                type="number"
+                min="0"
+                value="0"
+              />
+              <div class="help-text">0이면 기간 제한 없음, 30이면 최근 한 달 영상만 분석.</div>
+            </div>
+          </div>
+
+          <div class="controls-actions">
+            <button type="button" class="btn-secondary" id="exportCsvBtn" disabled>
+              CSV 다운로드
+            </button>
+            <button type="button" class="btn-primary" id="fetchBtn">
+              영상 불러오기 & 분석
+            </button>
+          </div>
+
+          <div class="status-bar">
+            <div class="status-message" id="statusMessage">
+              준비 완료. API 키와 조건을 입력하고 실행하세요.
+            </div>
+            <div class="pill" id="statusSummary">
+              <span>분석된 영상: <strong>0</strong>개</span>
             </div>
           </div>
         </div>
@@ -665,11 +709,7 @@
     function setStatus(message, type = "info", loading = false) {
       statusMessageEl.textContent = message;
       statusMessageEl.classList.toggle("danger", type === "error");
-      if (loading) {
-        statusMessageEl.classList.add("loading-dot");
-      } else {
-        statusMessageEl.classList.remove("loading-dot");
-      }
+      statusMessageEl.classList.toggle("loading-dot", loading);
     }
 
     function updateSummaryCount(count) {
@@ -736,14 +776,12 @@
     // 단순 토크나이저 (제목 키워드용, 한/영 기준 대충 쪼개기)
     function tokenizeTitle(title) {
       if (!title) return [];
-      // 특수문자 제거, 공백 기준 split
       const cleaned = title
         .replace(/[^\p{L}\p{N}\s]/gu, " ")
         .replace(/\s+/g, " ")
         .trim();
       if (!cleaned) return [];
       const tokens = cleaned.split(" ");
-      // 너무 짧은 토큰 제거 (1글자)
       return tokens.filter((t) => t.length > 1);
     }
 
@@ -794,7 +832,6 @@
         });
 
         if (currentMode === "channel") {
-          // 핸들이면 forHandle, 아니면 channelId로 처리
           if (channelIdRaw.startsWith("@")) {
             searchParams.set("forHandle", channelIdRaw.replace(/^@/, ""));
           } else {
@@ -849,7 +886,6 @@
           return;
         }
 
-        // videos.list로 상세 정보 가져오기
         const detailedVideos = [];
         const videosBase = "https://www.googleapis.com/youtube/v3/videos";
         const uniqueIds = Array.from(new Set(videoIds)).slice(0, maxResults);
@@ -875,7 +911,6 @@
           (data.items || []).forEach((item) => detailedVideos.push(item));
         }
 
-        // 최신순 정렬 (publishedAt 기준)
         detailedVideos.sort((a, b) => {
           const da = new Date(a.snippet.publishedAt || 0).getTime();
           const db = new Date(b.snippet.publishedAt || 0).getTime();
@@ -904,7 +939,7 @@
       }
     }
 
-    // ------ 렌더링 ------
+    // ------ 결과 렌더링 ------
     function renderVideos() {
       if (!currentVideos.length) {
         resultsListEl.innerHTML =
@@ -1059,7 +1094,6 @@
           }
         }
 
-        // 제목 키워드 카운트
         const tokens = tokenizeTitle(title);
         tokens.forEach((token) => {
           const old = keywordFreq.get(token) || 0;
@@ -1085,7 +1119,6 @@
         avgVph !== null && isFinite(avgVph) ? avgVph.toFixed(1) + " VPH" : "-";
       statLatestEl.textContent = latestDate ? formatDate(latestDate.toISOString()) : "-";
 
-      // 키워드 TOP 15
       renderKeywordTop(keywordFreq);
     }
 
@@ -1098,7 +1131,6 @@
       }
 
       const arr = Array.from(freqMap.entries());
-      // 너무 자주 나오는 의미 없는 단어를 간단히 필터 (아주 러프한 예)
       const stopwords = new Set([
         "영상", "정말", "오늘", "이혼", "전처", "이야기", "사연", "사람", "우리",
         "그녀", "그는", "당한", "후", "까지", "그리고"
@@ -1106,7 +1138,7 @@
 
       const filtered = arr
         .filter(([token, count]) => {
-          if (count < 2) return false; // 1번만 나온 건 제외
+          if (count < 2) return false;
           if (stopwords.has(token)) return false;
           return true;
         })
@@ -1132,7 +1164,6 @@
     function exportCsv() {
       if (!currentVideos.length) return;
       const rows = [];
-      // 헤더
       rows.push([
         "videoId",
         "title",
@@ -1206,7 +1237,6 @@
     fetchBtn.addEventListener("click", fetchVideos);
     exportCsvBtn.addEventListener("click", exportCsv);
 
-    // Enter 키로 실행
     [channelIdInput, keywordInput, maxResultsInput, daysRangeInput].forEach((el) => {
       el.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
