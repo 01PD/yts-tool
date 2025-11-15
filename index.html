@@ -28,6 +28,7 @@
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: radial-gradient(circle at top, #1e293b 0, #020617 45%, #000 100%);
       color: var(--text);
+      overflow-x: hidden;
     }
 
     .app {
@@ -73,7 +74,8 @@
       display: grid;
       grid-template-columns: minmax(180px, 1fr) minmax(0, 4fr) minmax(220px, 1fr);
       gap: 12px;
-      min-height: calc(100vh - 110px);
+      /* 전체 화면 높이를 거의 다 쓰게 해서 가운데만 스크롤 */
+      min-height: calc(100vh - 80px);
     }
 
     .panel {
@@ -296,10 +298,12 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      overflow: auto;
       padding-right: 2px;
       flex: 1;
-      /* max-height 제거해서 카드 높이 여유 있게 */
+      /* 가운데 결과창만 세로 스크롤 */
+      max-height: calc(100vh - 170px);
+      overflow-y: auto;
+      overflow-x: hidden;
     }
 
     .video-card {
@@ -311,10 +315,10 @@
       border-radius: 14px;
       border: 1px solid rgba(55,65,81,0.7);
       overflow: hidden;
-      min-height: 170px;
+      min-height: 150px;
     }
 
-    /* 화면이 좁을 땐 위아래로 배치해서 썸네일/정보 둘 다 넓게 */
+    /* 화면이 좁을 땐 위아래로 배치 */
     @media (max-width: 900px) {
       .video-card {
         grid-template-columns: 1fr;
@@ -371,14 +375,6 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-    }
-
-    .video-desc {
-      font-size: 0.78rem;
-      color: var(--text-soft);
-      max-height: 2.2em;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .video-link {
@@ -682,7 +678,7 @@
     const exportCsvBtn = document.getElementById("exportCsvBtn");
 
     const statusMessageEl = document.getElementById("statusMessage");
-    const statusSummaryEl = document.getElementById("statusSummary");
+       const statusSummaryEl = document.getElementById("statusSummary");
     const resultsInfoEl = document.getElementById("resultsInfo");
     const resultsListEl = document.getElementById("resultsList");
 
@@ -778,7 +774,7 @@
       return [m, s.toString().padStart(2, "0")].map((v) => v.toString().padStart(2, "0")).join(":");
     }
 
-    // 단순 토크나이저 (제목 키워드용, 한/영 기준 대충 쪼개기)
+    // 단순 토크나이저 (제목 키워드용)
     function tokenizeTitle(title) {
       if (!title) return [];
       const cleaned = title
@@ -944,7 +940,7 @@
       }
     }
 
-    // ------ 결과 렌더링 ------
+    // ------ 결과 렌더링 (설명 제거 버전) ------
     function renderVideos() {
       if (!currentVideos.length) {
         resultsListEl.innerHTML =
@@ -960,7 +956,6 @@
         const content = video.contentDetails || {};
         const vid = video.id;
         const title = snippet.title || "";
-        const description = snippet.description || "";
         const publishedAt = snippet.publishedAt || "";
         const thumb =
           (snippet.thumbnails &&
@@ -1020,10 +1015,6 @@
           <span>⏱️ ${vph !== null ? vph + " VPH" : "-"}</span>
         `;
 
-        const descDiv = document.createElement("div");
-        descDiv.className = "video-desc";
-        descDiv.textContent = description || "설명 없음";
-
         const linkDiv = document.createElement("div");
         linkDiv.className = "video-link";
         linkDiv.innerHTML =
@@ -1033,7 +1024,6 @@
 
         bodyDiv.appendChild(titleDiv);
         bodyDiv.appendChild(metaDiv);
-        bodyDiv.appendChild(descDiv);
         bodyDiv.appendChild(linkDiv);
 
         card.appendChild(thumbDiv);
